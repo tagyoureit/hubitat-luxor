@@ -99,7 +99,7 @@ def setLevel(lvl) {
 }
 
 
-def controllerHubGet(def apiCommand, def body="{}", def _callback) {
+def sendCommandToController(def apiCommand, def body="{}", def _callback) {
     def controllerIP = getDataValue('controllerIP')
 
     def cb = [:]
@@ -131,10 +131,8 @@ def illuminateGroup(){
     log.debug "requestJson is $requestJson"
 
 
-
-
     log.info "Luxor illuminating group $group at $state.desiredIntensity brightness."
-    controllerHubGet('/IlluminateGroup.json',requestJson,'parseIlluminateGroup')
+    sendCommandToController('/IlluminateGroup.json',requestJson,'parseIlluminateGroup')
 }
 
 
@@ -175,12 +173,8 @@ def setValues() {
 	def inten = getDataValue("intensity") as Integer 
 
     if (inten>0){ onOff="on"}
-    log.debug "set values $device $inten  $onOff"
 	sendEvent(name: "switch", value: onOff , displayed:true) 
-    // sendEvent(name: "switch level", value: state.desiredIntensity, displayed:true)
-    log.debug "sent switch, now levels"
     sendEvent(name: "level", value: getDataValue("intensity"))
-    log.debug "sent levels"
 }
 
 def updated(){

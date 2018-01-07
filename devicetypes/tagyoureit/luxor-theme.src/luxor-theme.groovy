@@ -52,14 +52,11 @@ def parse(description) {
 // handle commands
 def push() {
 	log.debug "Executing 'push'"
-	// TODO: handle 'push' command
-    
+
     def setStr = "{\"ThemeIndex\":${getDataValue('theme')}, \"OnOff\":1}"
             log.debug "about to update theme to $setStr"
             // update luxor group to use desired group 
-            controllerHubGet("/IlluminateTheme.json",setStr, parse)
-    //{“ThemeIndex":<0 thru 25>, “OnOff”:<0 or 1>}
-//    sendEvent(name: "momentary", value: "pushed", isStateChange: false)
+            sendCommandToController("/IlluminateTheme.json",setStr, parse)
     sendEvent(name: "momentary", value: "off",)
 }
 
@@ -67,7 +64,7 @@ def push() {
 // 	sendEvent(name: "momentary", value: "pushed", isStateChange: true)
 
 
-def controllerHubGet(def apiCommand, def body="{}", def _callback) {
+def sendCommandToController(def apiCommand, def body="{}", def _callback) {
     def controllerIP = getDataValue('controllerIP')
 
     def cb = [:]
