@@ -14,57 +14,53 @@
  *
  */
 metadata {
-	definition (name: "Luxor Theme", namespace: "tagyoureit", author: "Russell Goldin") {
-		capability "Momentary"
-	}
+    definition(name: "Luxor Theme", namespace: "tagyoureit", author: "Russell Goldin") {
+        capability "Momentary"
+    }
 
 
-	simulator {
-		// TODO: define status and reply messages here
-	}
+    simulator {
+        // TODO: define status and reply messages here
+    }
 
-	// UI tile definitions
-	tiles(scale: 2){
-		multiAttributeTile(name:"momentary", type: "generic", width: 6, height: 4, canChangeIcon: true){
-			tileAttribute("device.momentary", key: "PRIMARY_CONTROL") {
-				attributeState("off", label: 'Push', action: "momentary.push", icon: "st.lights.philips.hue-multi", backgroundColor: "#ffffff", nextState: "on")
-				attributeState("on", label: 'Push', action: "momentary.push", icon: "st.lights.philips.hue-multi", backgroundColor: "#00a0dc")
-			}	
-		}
-		main "momentary"
-		details "momentary"
-	}
+    // UI tile definitions
+    tiles(scale: 2) {
+        multiAttributeTile(name: "momentary", type: "generic", width: 6, height: 4, canChangeIcon: true) {
+            tileAttribute("device.momentary", key: "PRIMARY_CONTROL") {
+                attributeState("off", label: 'Push', action: "momentary.push", icon: "st.lights.philips.hue-multi", backgroundColor: "#ffffff", nextState: "on")
+                attributeState("on", label: 'Push', action: "momentary.push", icon: "st.lights.philips.hue-multi", backgroundColor: "#00a0dc")
+            }
+        }
+        main "momentary"
+        details "momentary"
+    }
 }
 
 // parse events into attributes
 def parse(description) {
-	log.debug "Parsing '${description.json}'"
-	if (description.json.Status==0){
-    //success
-    	parent.childRefresh()
-    }
-    else {
-    	
+    myLogger "debug", "Parsing '${description.json}'"
+    if (description.json.Status == 0) {
+        //success
+        log.info "$device theme successfully turned on"
+        parent.childRefresh()
+    } else {
+        log.error "$device theme did not turn on \n Response: \n${description.json}"
     }
 
 }
 
 // handle commands
 def push() {
-	log.debug "Executing 'push'"
+    myLogger "debug", "Executing 'push' on $device"
 
-    def setStr = "{\"ThemeIndex\":${getDataValue('theme')}, \"OnOff\":1}"
-            log.debug "about to update theme to $setStr"
-            // update luxor group to use desired group 
-            sendCommandToController("/IlluminateTheme.json",setStr, parse)
+    def setStr = "{\"ThemeIndex\":${state.luxorTheme}, \"OnOff\":1}"
+    // update luxor group to use desired group
+    sendCommandToController("/IlluminateTheme.json", setStr, parse)
     sendEvent(name: "momentary", value: "off",)
 }
 
 
-// 	sendEvent(name: "momentary", value: "pushed", isStateChange: true)
-
-
-def sendCommandToController(def apiCommand, def body="{}", def _callback) {
+def sendCommandToController(def apiCommand, def body = "{}", def _callback) {
     def controllerIP = getDataValue('controllerIP')
 
     def cb = [:]
@@ -72,16 +68,36 @@ def sendCommandToController(def apiCommand, def body="{}", def _callback) {
         cb["callback"] = _callback
     }
     def result = new physicalgraph.device.HubAction(
-        method: "POST",
-        path: apiCommand,
-        body: "${body}",
-        headers: [
-            "HOST" : "$controllerIP:80",
-            "Content-Type": "application/json"],
-        //getDataValue("controllerMac"),
-        null,
-        cb
+            method: "POST",
+            path: apiCommand,
+            body: "${body}",
+            headers: [
+                    "HOST"        : "$controllerIP:80",
+                    "Content-Type": "application/json"],
+            //getDataValue("controllerMac"),
+            null,
+            cb
     )
-    log.debug result.toString()
+    myLogger "debug", "Sending $apiCommand to controller\n${result.toString()}"
     sendHubCommand(result);
+}
+
+def setState(_state, _val) {
+    state."$_state" = _val
+}
+
+
+def installed() {
+    log.info "Executing installed on $device"
+}
+
+def myLogger(level, message) {
+    if (level == "debug") {
+        if (state.superDebug) {
+            log."$level" "$message"
+        }
+    } else {
+        log."$level" "$message"
+    }
+
 }

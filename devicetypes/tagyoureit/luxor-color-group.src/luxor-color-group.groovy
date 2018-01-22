@@ -47,13 +47,13 @@ metadata {
         }
 
         main(["switch"])
-        details(["switch", "refresh"])
+        details(["switch", "switchLevel", "refresh"])
     }
 }
 
 // parse events into attributes
 def parse(description) {
-    log.debug "Parsing '${description.json}'"
+    myLogger ("debug", "Parsing '${description.json}'")
     // TODO: handle 'hue' attribute
     // TODO: handle 'saturation' attribute
     // TODO: handle 'color' attribute
@@ -64,23 +64,23 @@ def parse(description) {
 
 // handle commands
 def setHue() {
-    log.debug "Executing 'setHue'"
+    myLogger ("debug", "Executing 'setHue'")
     // TODO: handle 'setHue' command
 }
 
 def setSaturation() {
-    log.debug "Executing 'setSaturation'"
+    myLogger ("debug", "Executing 'setSaturation'")
     // TODO: handle 'setSaturation' command
 }
 
 def setColor(color) {
-    log.debug "Executing 'setColor' with $color"
+    myLogger ("debug", "Executing 'setColor' with $color")
 
     // convert Hue 0-100 (ST) to 0-360 (Luxor)
     def luxHue = (color.hue * 360 / 100).toInteger()
 
-    def setStr = "{\"C\":${getDataValue('STColorGroup').toInteger()}, \"Hue\": $luxHue, \"Sat\": ${color.saturation.toInteger()}}"
-    log.debug "about to update color group :${getDataValue('STColorGroup')} to be $setStr"
+    def setStr = "{\"C\":${state.color}, \"Hue\": $luxHue, \"Sat\": ${color.saturation.toInteger()}}"
+    myLogger ("debug", "about to update color group :${state.color} to be $setStr")
     // update desired color with current color
     sendCommandToController("/ColorListSet.json", setStr, parse)
 }
@@ -88,7 +88,7 @@ def setColor(color) {
 // handle commands
 def off() {
 
-    log.debug "Executing 'off'"
+    myLogger "debug", "Executing 'off'"
 
     state.desiredIntensity = 0
     sendEvent(name: "switch", value: "turningOff", displayed: true)
@@ -97,8 +97,7 @@ def off() {
 
 def on() {
 
-    log.debug "Executing 'on'"
-
+    myLogger ("debug", "Executing 'on'")
     sendEvent(name: "switch", value: "turningOn", displayed: true)
 
     state.desiredIntensity = 100
@@ -106,7 +105,7 @@ def on() {
 }
 
 def setLevel(lvl) {
-    log.debug "Executing 'setLevel' with $lvl"
+    myLogger ("debug", "Executing 'setLevel' with $lvl")
     state.desiredIntensity = lvl
 
     if (lvl == 0) {
@@ -118,14 +117,18 @@ def setLevel(lvl) {
     }
 }
 
+def setState(_state, _val){
+    state."$_state" = _val
+}
+
 
 def updated() {
-    log.debug "updated $device"
-    setValues()
+    myLogger ("debug", "updated $device")
+    //setValues()
 }
 
 def refresh() {
-    log.debug "called refresh $device"
+    myLogger ("debug", "native called refresh $device")
     parent.childRefresh()
 }
 
@@ -147,39 +150,34 @@ def sendCommandToController(def apiCommand, def body = "{}", def _callback) {
             null,
             cb
     )
-    log.debug result.toString()
+    myLogger "debug", "Sending $apiCommand to controller\n${result.toString()}"
     sendHubCommand(result);
 }
 
 def illuminateGroup() {
     def jsonSlurper = new groovy.json.JsonSlurper()
     def jsonOutput = new groovy.json.JsonOutput()
-    def group = getDataValue("group")
+    def group = state.luxorGroup
+    myLogger "debug", "illuminate color group $device $state"
     def obj = [GroupNumber: group, Intensity: state.desiredIntensity]
-    log.debug "obj $obj"
 
     def requestJson = jsonOutput.toJson(obj)
-    log.debug "requestJson is $requestJson"
 
-
-
-
-    log.info "Luxor illuminating group $group at $state.desiredIntensity brightness."
+    myLogger "debug", "Luxor illuminating group $group at $state.desiredIntensity brightness."
     sendCommandToController('/IlluminateGroup.json', requestJson, 'parseIlluminateGroup')
 }
 
 
 def parseIlluminateGroup(physicalgraph.device.HubResponse hubResponse) {
-    log.debug "hubResponse: $hubResponse.body  $hubResponse.description  $hubResponse.headers  desiredInten=$state.desiredIntensity"
+    myLogger "debug", "hubResponse: $hubResponse.body  $hubResponse.description  $hubResponse.headers  desiredInten=$state.desiredIntensity"
     if (hubResponse.json.Status == 0) {
-        log.info "desiredIntensity = $state.desiredIntensity"
 
         if (state.desiredIntensity > 0) {
-            log.info "Light group ${getDataValue('group')} is now on with brightness $state.desiredIntensity."
+            log.info "Light group ${state.luxorGroup} is now on with brightness $state.desiredIntensity."
             sendEvent(name: "switch", value: "on", displayed: true)
             sendEvent(name: "level", value: state.desiredIntensity)
         } else {
-            log.info "Light group ${getDataValue('group')} is now off."
+            log.info "Light group ${state.luxorGroup} is now off."
             sendEvent(name: "switch", value: "off", displayed: true)
             sendEvent(name: "level", value: state.desiredIntensity)
 
@@ -193,22 +191,33 @@ def parseIlluminateGroup(physicalgraph.device.HubResponse hubResponse) {
 
 def installed() {
     log.info "Executing installed on $device"
-    setValues()
 }
 
 def setValues() {
-    def onOff = "off"
-    def inten = getDataValue("intensity") as Integer
+    //def onOff = "off"
+    //def inten = getDataValue("intensity") as Integer
 
-    if (inten > 0) {
-        onOff = "on"
-    }
-    //log.debug "set values $device $inten  $onOff"
-    sendEvent(name: "switch", value: onOff, displayed: true)
-    sendEvent(name: "level", value: getDataValue("intensity"))
-    //log.debug "sent levels"
+    //if (inten > 0) {
+    //    onOff = "on"
+    //}
+    myLogger ("debug", "set values $device  $switchLevel 1 $switchState 2 ${switchState>0} 3 4 ${currentState}")
+    myLogger ("debug", "switch states 2 ${device.switchLevel}  3 ${device.switchState}")
+    sendEvent(name: "switch", value: switchState>0?"on":"off", displayed: true)
+    sendEvent(name: "level", value: inten)
+    //myLogger "debug", "sent levels"
 
-    sendEvent(name: "color", value: [hue: getDataValue("hue"), saturation: getDataValue("saturation")])
+    //sendEvent(name: "color", value: [hue: getDataValue("hue"), saturation: getDataValue("saturation")])
 
 }
 
+def myLogger(level, message){
+    if (level == "debug") {
+        if (state.superDebug) {
+            log."$level" "$message"
+        }
+    }
+    else {
+        log."$level" "$message"
+    }
+
+}

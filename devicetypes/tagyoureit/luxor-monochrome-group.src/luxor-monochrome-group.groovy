@@ -48,20 +48,20 @@ metadata {
         }
 		
         main(["switch"])
-        details(["switch","refresh"])
+        details(["switch","switchLevel","refresh"])
     }
 
 }
 
 // parse events into attributes
 def parse(String description) {
-    log.debug "Parsing '${description}'"
+    myLogger "debug", "Parsing '${description}'"
 }
 
 // handle commands
 def off() {
 
-    log.debug "Executing 'off'"
+    myLogger "debug", "Executing 'off'"
 
     state.desiredIntensity = 0
     sendEvent(name: "switch", value: "turningOff", displayed:true) 
@@ -70,7 +70,7 @@ def off() {
 
 def on() {
 
-    log.debug "Executing 'on'"
+    myLogger "debug", "Executing 'on'"
 
     log.info "device is $device"
     log.info "device.data is $device.data"
@@ -85,7 +85,7 @@ def on() {
 }
 
 def setLevel(lvl) {
-    log.debug "Executing 'setLevel' with $lvl"
+    myLogger "debug", "Executing 'setLevel' with $lvl"
     state.desiredIntensity = lvl
 
     if (lvl==0){
@@ -117,39 +117,37 @@ def sendCommandToController(def apiCommand, def body="{}", def _callback) {
         null,
         cb
     )
-    log.debug result.toString()
+    myLogger "debug", "Sending $apiCommand to controller\n${result.toString()}"
     sendHubCommand(result);
 }
 
 def illuminateGroup(){
     def jsonSlurper = new groovy.json.JsonSlurper()
     def jsonOutput = new groovy.json.JsonOutput()
-    def group = getDataValue("group")
+    def group = state.luxorGroup
     def obj = [GroupNumber: group, Intensity: state.desiredIntensity]
-    log.debug "obj $obj"
     def requestJson = jsonOutput.toJson(obj)
-    log.debug "requestJson is $requestJson"
-
-
-    log.info "Luxor illuminating group $group at $state.desiredIntensity brightness."
+    myLogger "debug", "Luxor illuminating group $group at $state.desiredIntensity brightness."
     sendCommandToController('/IlluminateGroup.json',requestJson,'parseIlluminateGroup')
 }
 
+def setState(_state, _val){
+    state."$_state" = _val
+}
 
 
 def parseIlluminateGroup(physicalgraph.device.HubResponse hubResponse) {
-    log.debug "hubResponse: $hubResponse.body  $hubResponse.description  $hubResponse.headers  desiredInten=$state.desiredIntensity"
+    myLogger "debug", "hubResponse: $hubResponse.body  $hubResponse.description  $hubResponse.headers  desiredInten=$state.desiredIntensity"
     if (hubResponse.json.Status==0){
-        log.info "desiredIntensity = $state.desiredIntensity"
 
         if (state.desiredIntensity>0){
-            log.info "Light group ${getDataValue('group')} is now on with brightness $state.desiredIntensity."
+            log.info "Light group ${state.luxorGroup} is now on with brightness $state.desiredIntensity."
             sendEvent(name: "switch", value: "on", displayed:true) 
             sendEvent(name: "level", value: state.desiredIntensity)
         }
         else
         {
-            log.info "Light group ${getDataValue('group')} is now off."
+            log.info "Light group ${state.luxorGroup} is now off."
             sendEvent(name: "switch", value: "off", displayed:true) 
             sendEvent(name: "level", value: state.desiredIntensity)
 
@@ -163,26 +161,32 @@ def parseIlluminateGroup(physicalgraph.device.HubResponse hubResponse) {
 
 def installed() {
     log.info "Executing installed on $device"
-    setValues()
+
 }
 
 def setValues() {
-
-
-    def onOff = "off"
-	def inten = getDataValue("intensity") as Integer 
-
-    if (inten>0){ onOff="on"}
-	sendEvent(name: "switch", value: onOff , displayed:true) 
-    sendEvent(name: "level", value: getDataValue("intensity"))
+	sendEvent(name: "switch", value: switchState>0?"on":"off" , displayed:true)
+    sendEvent(name: "level", value: inten)
 }
 
 def updated(){
-    log.debug "updated $device"
-    setValues()
+    myLogger "debug", "updated $device"
+    //setValues()
 }
 
 def refresh(){
-    log.debug "called refresh $device"
+    myLogger "debug", "called refresh $device"
     parent.childRefresh()
+}
+
+def myLogger(level, message){
+    if (level == "debug") {
+        if (state.superDebug) {
+            log."$level" "$message"
+        }
+    }
+    else {
+        log."$level" "$message"
+    }
+
 }

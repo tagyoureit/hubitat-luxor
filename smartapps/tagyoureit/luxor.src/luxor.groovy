@@ -77,7 +77,7 @@ def setupValidate() {
         progress = "Failed"
     }
     else if (state.controllerDiscovered == "Found") {
-        msg = "Found Luxor $state.controllerType controller '$state.controllerName'.  Ready to install. \n\nPlease wait ~30 seconds for groups and themes to show up after you click save."
+        msg = "Found Luxor $state.controllerType controller '$state.controllerName'.  Ready to install. \n\nPlease wait up to 60 seconds for groups and themes to show up after you click save."
         canInstall = true
         interval = 120
         progress = "Success"
@@ -106,7 +106,7 @@ def setupInit() {
         name:			"luxorIP",
         type:			"string",
         title:			"Enter IP Address of Luxor Controller",
-        defaultValue:	"11.11.11.13",
+        defaultValue:	"xxx.xxx.xxx.xxx",
         required:		true
     ]
 
@@ -186,7 +186,7 @@ def addControllerAsDevice(){
     def d = getChildDevices()?.find { it.deviceNetworkId == mac}
     if (d) {
         d.updateDataValue("controllerIP", luxorIP)
-        d.manageChildren()
+        //d.manageChildren()  // installed in child device calls same method
     } else {
         log.info "Creating Luxor ${state.controllerType} Controller Device with dni: ${mac}"
         d = addChildDevice("tagyoureit", "Luxor Controller", mac, hubId,
