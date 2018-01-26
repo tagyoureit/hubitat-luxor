@@ -4,7 +4,7 @@ SmartThings SmartApp for Luxor ZD/ZDC controllers
 ## Overview
 
 This SmartApp works with the following:
-* Luxor ZD Controllers (Zoning/Dimming)  --   ***Not fully tested yet***
+* Luxor ZD Controllers (Zoning/Dimming)
     * On/Off/Polling every 5 minutes
 * Luxor ZDC Controllers (Zoning/Diming/Color)
     * On/Off/Polling every 5 minutes
@@ -16,7 +16,7 @@ This SmartApp works with the following:
     * Intensity/Brightness
     * Color Selection
 * Themes
-    * Push botton on (no off)
+    * Momentary Push button on (no off; handled by light groups/controllers)
 
 ## Install directions:
 
@@ -47,5 +47,8 @@ No automatic discovery can be enabled because SmartThings will only search for S
 
 
 ## Future enhancements?
+* Add all Light Groups/Themes as icons on parent controller device
 * Customizeable polling period
-* Default "on" Level for turning on all light groups
+* ~~User selected default "on" Level for turning on all light groups~~ (Not possible)
+* Save/change color group for color lights
+* Enable "live color change mode" for color groups before save (may not be necessary.  This is when the user holds/drags the color before pressing done when selecting a color.)

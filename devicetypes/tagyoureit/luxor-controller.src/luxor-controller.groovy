@@ -172,7 +172,7 @@ def parseGroupListGet(physicalgraph.device.HubResponse hubResponse) {
 
         def _intensity = 0// group.Inten?:group.Intensity  NOTE: Elvis doesn't work here because 0 is a valid group but defaults to falsy
 
-        if (group.Inten>=0){
+        if (group.Inten){
             _intensity = group.Inten
         }
         else {
@@ -196,7 +196,7 @@ def parseGroupListGet(physicalgraph.device.HubResponse hubResponse) {
             }  else //zd
             {
                 groupType = "Monochrome"
-                log.info "Creating Luxor $groupType light group #:${group.GroupNumber}, name ${group.Name}, Intensity ${group.Intensity}"
+                log.info "Creating Luxor $groupType light group #:${_group}, name ${group.Name}, Intensity ${_intensity}"
 
             }
             def lightGroup = "Luxor $groupType Group"
@@ -224,8 +224,9 @@ def parseGroupListGet(physicalgraph.device.HubResponse hubResponse) {
 
         device.sendEvent(name: "switch", value: _intensity>0?"on":"off" , displayed:true)
         device.sendEvent(name: "level", value: _intensity)
-
-        device.setState("color", _color)
+        if (getDataValue("controllerType") == "ZDC") {
+            device.setState("color", _color)
+        }
         device.setState("type", "group")
         device.setState("luxorGroup", _group)
         device.setState("superDebug", state.superDebug)
@@ -303,7 +304,7 @@ def parseColorListGet(physicalgraph.device.HubResponse hubResponse) {
 
     def colors = hubResponse.json.ColorList
 
-    def devices = getChildDevices()?.findAll { it.state?.color > 0 }
+    def devices = getChildDevices()?.findAll { it?.state?.color > 0 }
 
 
     devices.each { device ->

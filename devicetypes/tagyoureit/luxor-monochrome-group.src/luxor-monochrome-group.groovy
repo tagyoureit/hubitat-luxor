@@ -113,7 +113,6 @@ def sendCommandToController(def apiCommand, def body="{}", def _callback) {
         headers: [
             "HOST" : "$controllerIP:80",
             "Content-Type": "application/json"],
-        //getDataValue("controllerMac"),
         null,
         cb
     )
@@ -122,10 +121,8 @@ def sendCommandToController(def apiCommand, def body="{}", def _callback) {
 }
 
 def illuminateGroup(){
-    def jsonSlurper = new groovy.json.JsonSlurper()
     def jsonOutput = new groovy.json.JsonOutput()
-    def group = state.luxorGroup
-    def obj = [GroupNumber: group, Intensity: state.desiredIntensity]
+    def obj = [GroupNumber: state.luxorGroup, Intensity: state.desiredIntensity]
     def requestJson = jsonOutput.toJson(obj)
     myLogger "debug", "Luxor illuminating group $group at $state.desiredIntensity brightness."
     sendCommandToController('/IlluminateGroup.json',requestJson,'parseIlluminateGroup')

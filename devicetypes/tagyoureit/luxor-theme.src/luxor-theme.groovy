@@ -27,7 +27,7 @@ metadata {
     tiles(scale: 2) {
         multiAttributeTile(name: "momentary", type: "generic", width: 6, height: 4, canChangeIcon: true) {
             tileAttribute("device.momentary", key: "PRIMARY_CONTROL") {
-                attributeState("off", label: 'Push', action: "momentary.push", icon: "st.lights.philips.hue-multi", backgroundColor: "#ffffff", nextState: "on")
+                attributeState("off", label: 'Push', action: "momentary.push", icon: "st.lights.philips.hue-multi", backgroundColor: "#ffffff")
                 attributeState("on", label: 'Push', action: "momentary.push", icon: "st.lights.philips.hue-multi", backgroundColor: "#00a0dc")
             }
         }
@@ -37,11 +37,12 @@ metadata {
 }
 
 // parse events into attributes
-def parse(description) {
+def parseThemeListGet(description) {
     myLogger "debug", "Parsing '${description.json}'"
     if (description.json.Status == 0) {
         //success
         log.info "$device theme successfully turned on"
+        runIn(2, turnOffMomentary)
         parent.childRefresh()
     } else {
         log.error "$device theme did not turn on \n Response: \n${description.json}"
@@ -49,14 +50,21 @@ def parse(description) {
 
 }
 
+def turnOffMomentary(){
+    sendEvent(name: "momentary", value: "off")
+}
+
 // handle commands
 def push() {
+    def jsonOutput = new groovy.json.JsonOutput()
+    def obj = [ThemeIndex: state.luxorTheme, OnOff: 1]
+    def requestJson = jsonOutput.toJson(obj)
     myLogger "debug", "Executing 'push' on $device"
 
-    def setStr = "{\"ThemeIndex\":${state.luxorTheme}, \"OnOff\":1}"
+    //def setStr = "{\"ThemeIndex\":${state.luxorTheme}, \"OnOff\":1}"
     // update luxor group to use desired group
-    sendCommandToController("/IlluminateTheme.json", setStr, parse)
-    sendEvent(name: "momentary", value: "off",)
+    sendCommandToController("/IlluminateTheme.json", requestJson, parseThemeListGet)
+    sendEvent(name: "momentary", value: "on")
 }
 
 

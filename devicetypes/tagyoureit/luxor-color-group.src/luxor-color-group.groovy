@@ -62,6 +62,17 @@ def parse(description) {
 
 }
 
+def parseColorListSet(description){
+    if (description.json.Status == 0) {
+        //success
+        log.info "Color Group ${state.color} successfully saved"
+        parent.childRefresh()
+    } else {
+        log.error "Color Group ${state.color} returned an error.\n Response: \n${description.json}"
+    }
+
+}
+
 // handle commands
 def setHue() {
     myLogger ("debug", "Executing 'setHue'")
@@ -82,7 +93,7 @@ def setColor(color) {
     def setStr = "{\"C\":${state.color}, \"Hue\": $luxHue, \"Sat\": ${color.saturation.toInteger()}}"
     myLogger ("debug", "about to update color group :${state.color} to be $setStr")
     // update desired color with current color
-    sendCommandToController("/ColorListSet.json", setStr, parse)
+    sendCommandToController("/ColorListSet.json", setStr, parseColorListSet)
 }
 
 // handle commands
@@ -155,14 +166,9 @@ def sendCommandToController(def apiCommand, def body = "{}", def _callback) {
 }
 
 def illuminateGroup() {
-    def jsonSlurper = new groovy.json.JsonSlurper()
     def jsonOutput = new groovy.json.JsonOutput()
-    def group = state.luxorGroup
-    myLogger "debug", "illuminate color group $device $state"
-    def obj = [GroupNumber: group, Intensity: state.desiredIntensity]
-
+    def obj = [GroupNumber: state.luxorGroup, Intensity: state.desiredIntensity]
     def requestJson = jsonOutput.toJson(obj)
-
     myLogger "debug", "Luxor illuminating group $group at $state.desiredIntensity brightness."
     sendCommandToController('/IlluminateGroup.json', requestJson, 'parseIlluminateGroup')
 }
