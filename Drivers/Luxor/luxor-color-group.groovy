@@ -14,7 +14,7 @@
  *
  */
 metadata {
-    definition(name: 'Luxor Color Group', namespace: 'tagyoureit', author: 'Russell Goldin') {
+    definition(name: "Luxor Color Group", namespace: "tagyoureit", author: "Russell Goldin") {
         capability 'Color Control'
         capability 'Switch'
         capability 'Switch Level'

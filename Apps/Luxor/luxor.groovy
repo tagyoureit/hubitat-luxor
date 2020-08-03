@@ -14,14 +14,15 @@
 *
 */
 definition(
-    name: 'Luxor',
-    namespace: 'tagyoureit',
-    author: 'Russell Goldin',
-    description: 'SmartApp to control Luxor ZD and ZDC Lighting Controllers by Hunter',
-    category: 'SmartThings Labs',
-    iconUrl: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png',
-    iconX2Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png',
-    iconX3Url: 'https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png')
+    name: "Luxor",
+    namespace: "tagyoureit",
+    author: "Russell Goldin",
+    description: "SmartApp to control Luxor ZD and ZDC Lighting Controllers by Hunter",
+    category: "SmartThings Labs",
+    tags: ""
+    iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
+    iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
+    iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png")
 
 def debug() {
     // set to false to disable logging

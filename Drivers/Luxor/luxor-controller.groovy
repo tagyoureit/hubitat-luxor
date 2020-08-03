@@ -15,7 +15,7 @@
  *
  */
 metadata {
-    definition(name: 'Luxor Controller', namespace: 'tagyoureit', author: 'Russell Goldin') {
+    definition(name: "Luxor Controller", namespace: "tagyoureit", author: "Russell Goldin") {
         capability 'Switch'
         capability 'Refresh'
     }
