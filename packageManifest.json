@@ -1,0 +1,7 @@
+{
+  "packageName": "hubitat-luxor",
+  "author": "Russ Goldin",
+  "version": "1.0",
+  "minimumHEVersion": "2.1.9",
+  "dateReleased": "2020-08-03"
+}

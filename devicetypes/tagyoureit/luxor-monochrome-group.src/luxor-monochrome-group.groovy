@@ -31,22 +31,22 @@ metadata {
     }
 
     tiles(scale: 2) {
-		multiAttributeTile(name:"switch", type: "lighting", width: 6, height: 4, canChangeIcon: true){
-			tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
-				attributeState "on", label:'${name}', action:"switch.off", icon:"st.lights.philips.hue-single", backgroundColor:"#00A0DC", nextState:"turningOff"
-				attributeState "off", label:'${name}', action:"switch.on", icon:"st.lights.philips.hue-single", backgroundColor:"#ffffff", nextState:"turningOn"
-				attributeState "turningOn", label:'${name}', action:"switch.off", icon:"st.lights.philips.hue-single", backgroundColor:"#00A0DC", nextState:"turningOff"
-				attributeState "turningOff", label:'${name}', action:"switch.on", icon:"st.lights.philips.hue-single", backgroundColor:"#ffffff", nextState:"turningOn"
-			}
-			tileAttribute ("device.level", key: "SLIDER_CONTROL") {
-				attributeState "level", action:"switch level.setLevel"
-			}
-		}
+        multiAttributeTile(name:"switch", type: "lighting", width: 6, height: 4, canChangeIcon: true){
+            tileAttribute ("device.switch", key: "PRIMARY_CONTROL") {
+                attributeState "on", label:'${name}', action:"switch.off", icon:"st.lights.philips.hue-single", backgroundColor:"#00A0DC", nextState:"turningOff"
+                attributeState "off", label:'${name}', action:"switch.on", icon:"st.lights.philips.hue-single", backgroundColor:"#ffffff", nextState:"turningOn"
+                attributeState "turningOn", label:'${name}', action:"switch.off", icon:"st.lights.philips.hue-single", backgroundColor:"#00A0DC", nextState:"turningOff"
+                attributeState "turningOff", label:'${name}', action:"switch.on", icon:"st.lights.philips.hue-single", backgroundColor:"#ffffff", nextState:"turningOn"
+            }
+            tileAttribute ("device.level", key: "SLIDER_CONTROL") {
+                attributeState "level", action:"switch level.setLevel"
+            }
+        }
         
         standardTile("refresh", "device.refresh", height: 1, width: 1, inactiveLabel: false) {
             state "default", label: 'Refresh', action: "refresh.refresh", icon: "st.secondary.refresh-icon"
         }
-		
+        
         main(["switch"])
         details(["switch","switchLevel","refresh"])
     }
@@ -55,13 +55,13 @@ metadata {
 
 // parse events into attributes
 def parse(String description) {
-    myLogger "debug", "Parsing '${description}'"
+  log.debug "Parsing '${description}'"
 }
 
 // handle commands
 def off() {
 
-    myLogger "debug", "Executing 'off'"
+  log.debug "Executing 'off'"
 
     state.desiredIntensity = 0
     sendEvent(name: "switch", value: "turningOff", displayed:true) 
@@ -70,7 +70,7 @@ def off() {
 
 def on() {
 
-    myLogger "debug", "Executing 'on'"
+  log.debug "Executing 'on'"
 
     log.info "device is $device"
     log.info "device.data is $device.data"
@@ -85,7 +85,7 @@ def on() {
 }
 
 def setLevel(lvl) {
-    myLogger "debug", "Executing 'setLevel' with $lvl"
+  log.debug "Executing 'setLevel' with $lvl"
     state.desiredIntensity = lvl
 
     if (lvl==0){
@@ -106,26 +106,39 @@ def sendCommandToController(def apiCommand, def body="{}", def _callback) {
     if (_callback) {
         cb["callback"] = _callback
     }
-    def result = new physicalgraph.device.HubAction(
+    def hubAction
+    if (state.isST){
+    hubAction = physicalgraph.device.HubAction.newInstance(
         method: "POST",
         path: apiCommand,
-        body: "${body}",
+        body: body,
         headers: [
             "HOST" : "$controllerIP:80",
             "Content-Type": "application/json"],
         null,
         cb
     )
-    myLogger "debug", "Sending $apiCommand to controller\n${result.toString()}"
-    sendHubCommand(result);
+    }
+    else {
+     hubAction = hubitat.device.HubAction.newInstance(
+        method: "POST",
+        path: apiCommand,
+        body: body,
+        headers: [
+            "HOST" : "$controllerIP:80",
+            "Content-Type": "application/json"],
+        null,
+        cb
+    )   
+    }
+  log.debug "Sending $apiCommand to controller\n${hubAction.toString()}"
+    sendHubCommand(hubAction);
 }
 
 def illuminateGroup(){
-    def jsonOutput = new groovy.json.JsonOutput()
     def obj = [GroupNumber: state.luxorGroup, Intensity: state.desiredIntensity]
-    def requestJson = jsonOutput.toJson(obj)
-    myLogger "debug", "Luxor illuminating group $group at $state.desiredIntensity brightness."
-    sendCommandToController('/IlluminateGroup.json',requestJson,'parseIlluminateGroup')
+    log.debug "Luxor illuminating group $group at $state.desiredIntensity brightness."
+    sendCommandToController('/IlluminateGroup.json', obj, 'parseIlluminateGroup')
 }
 
 def setState(_state, _val){
@@ -133,8 +146,8 @@ def setState(_state, _val){
 }
 
 
-def parseIlluminateGroup(physicalgraph.device.HubResponse hubResponse) {
-    myLogger "debug", "hubResponse: $hubResponse.body  $hubResponse.description  $hubResponse.headers  desiredInten=$state.desiredIntensity"
+def parseIlluminateGroup(hubResponse) {
+  log.debug "hubResponse: $hubResponse.body  $hubResponse.description  $hubResponse.headers  desiredInten=$state.desiredIntensity"
     if (hubResponse.json.Status==0){
 
         if (state.desiredIntensity>0){
@@ -162,28 +175,85 @@ def installed() {
 }
 
 def setValues() {
-	sendEvent(name: "switch", value: switchState>0?"on":"off" , displayed:true)
+    sendEvent(name: "switch", value: switchState>0?"on":"off" , displayed:true)
     sendEvent(name: "level", value: inten)
 }
 
 def updated(){
-    myLogger "debug", "updated $device"
+  log.debug "updated $device"
     //setValues()
 }
 
 def refresh(){
-    myLogger "debug", "called refresh $device"
+  log.debug "called refresh $device"
     parent.childRefresh()
 }
 
-def myLogger(level, message){
-    if (level == "debug") {
-        if (state.superDebug) {
-            log."$level" "$message"
-        }
-    }
-    else {
-        log."$level" "$message"
-    }
+private logger(msg, level = 'debug') {
+    def lookup = [
+                'None' : 0,
+                'Error' : 1,
+                'Warning' : 2,
+                'Info' : 3,
+                'Debug' : 4,
+                'Trace' : 5]
+    def logLevel = lookup[state.loggingLevelIDE ? state.loggingLevelIDE : 'Debug']
+    // log.debug("Lookup is now ${logLevel} for ${state.loggingLevelIDE}")
 
+    switch (level) {
+        case 'error':
+            if (logLevel >= 1) log.error msg
+            break
+
+        case 'warn':
+            if (logLevel >= 2) log.warn msg
+            break
+
+        case 'info':
+            if (logLevel >= 3) log.info msg
+            break
+
+        case 'debug':
+            if (logLevel >= 4) log.debug msg
+            break
+
+        case 'trace':
+            if (logLevel >= 5) log.trace msg
+            break
+
+        case 'none':
+           break
+
+        default:
+            log.debug msg
+            break
+    }
 }
+// **************************************************************************************************************************
+// SmartThings/Hubitat Portability Library (SHPL)
+// Copyright (c) 2019, Barry A. Burke (storageanarchy@gmail.com)
+//
+// The following 3 calls are safe to use anywhere within a Device Handler or Application
+//  - these can be called (e.g., if (getPlatform() == 'SmartThings'), or referenced (i.e., if (platform == 'Hubitat') )
+//  - performance of the non-native platform is horrendous, so it is best to use these only in the metadata{} section of a
+//    Device Handler or Application
+//
+private String  getPlatform() { (physicalgraph?.device?.HubAction ? 'SmartThings' : 'Hubitat') }    // if (platform == 'SmartThings') ...
+private Boolean getIsST()     { (physicalgraph?.device?.HubAction ? true : false) }                    // if (isST) ...
+private Boolean getIsHE()     { (hubitat?.device?.HubAction ? true : false) }                        // if (isHE) ...
+//
+// The following 3 calls are ONLY for use within the Device Handler or Application runtime
+//  - they will throw an error at compile time if used within metadata, usually complaining that "state" is not defined
+//  - getHubPlatform() ***MUST*** be called from the installed() method, then use "state.hubPlatform" elsewhere
+//  - "if (state.isST)" is more efficient than "if (isSTHub)"
+//
+private String getHubPlatform() {
+    if (state?.hubPlatform == null) {
+        state.hubPlatform = getPlatform()                        // if (hubPlatform == 'Hubitat') ... or if (state.hubPlatform == 'SmartThings')...
+        state.isST = state.hubPlatform.startsWith('S')            // if (state.isST) ...
+        state.isHE = state.hubPlatform.startsWith('H')            // if (state.isHE) ...
+    }
+    return state.hubPlatform
+}
+private Boolean getIsSTHub() { (state.isST) }                    // if (isSTHub) ...
+private Boolean getIsHEHub() { (state.isHE) }                    // if (isHEHub) ...
