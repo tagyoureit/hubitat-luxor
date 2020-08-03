@@ -21,28 +21,28 @@
       "name": "Luxor Theme",
       "namespace": "tagyoureit",
       "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/Drivers/Luxor/luxor-theme.groovy",
-      "required": false
+      "required": true
     },
     {
       "id": "8849172a-993a-40f9-a509-486877a2cab6",
       "name": "Luxor Monochrome Group",
       "namespace": "tagyoureit",
       "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/Drivers/Luxor/luxor-monochrome-group.groovy",
-      "required": false
+      "required": true
     },
     {
       "id": "e7c24b53-8fd1-403c-8589-0c744e566252",
       "name": "Luxor Color Group",
       "namespace": "tagyoureit",
       "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/Drivers/Luxor/luxor-color-group.groovy",
-      "required": false
+      "required": true
     },
     {
       "id": "7dc2c810-e66a-4032-9710-714a01b4773f",
       "name": "Luxor Controller",
       "namespace": "tagyoureit",
       "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/Drivers/Luxor/luxor-controller.groovy",
-      "required": false
+      "required": true
     }
   ]
 }
