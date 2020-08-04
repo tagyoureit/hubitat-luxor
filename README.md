@@ -47,8 +47,7 @@ Find this package with Hubitat Package Manager.
 The SmartApp uses an API to connect to the Luxor Controller.  
 * Changes to ZDC Color Group (Hue/Saturation) will be saved back to the controller
 * Name changes for SmartThings devices will _not_ be saved back to the controller, but if you change the name in Luxor it will be kept in sync.
-* You can update the "color group" of the groups through your HA app.
-* The color group on the Luxor server will be updated if you change the color in your HA app.
+* HUBITAT ONLY: You can update the "color group" of the groups through your HA app. The color group on the Luxor server will be updated.
 * If you delete or add new lights/themes go through the app setup again or manually "refresh" the main controller (named 'Luxor {model} Controller').
 * No automatic discovery can be enabled because SmartThings will only search for SSDP broadcasts and Luxor uses mDNS broadcasts.
 * This code is fully compatible with BOTH SmartThings (classic App) and Hubitat. The SHPL is awesome and made that possible so thanks to Barry Burke

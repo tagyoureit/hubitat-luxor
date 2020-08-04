@@ -1,7 +1,7 @@
 /**
 *  Luxor
 *
-*  Copyright 2017 Russell Goldin
+*  Copyright 2017-2020 Russell Goldin
 *
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
@@ -17,9 +17,9 @@ definition(
     name: "Luxor",
     namespace: "tagyoureit",
     author: "Russell Goldin",
-    description: "SmartApp to control Luxor ZD and ZDC Lighting Controllers by Hunter",
+    description: "SmartApp to control Luxor ZD, ZDC and ZDTWO Lighting Controllers by Hunter",
     category: "SmartThings Labs",
-    tags: ""
+    tags: "",
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
     iconX3Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png")
