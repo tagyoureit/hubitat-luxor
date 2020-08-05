@@ -3,5 +3,46 @@
   "author": "Russell Goldin",
   "version": "1.0.0",
   "minimumHEVersion": "2.1.9",
-  "dateReleased": "2020-08-05"
+  "dateReleased": "2020-08-05",
+  "apps": [
+    {
+      "id": "32859653-ddce-45e8-8829-baa1af0ffca3",
+      "name": "Luxor",
+      "namespace": "tagyoureit",
+      "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/smartapps/tagyoureit/luxor.src/luxor.groovy",
+      "required": true,
+      "oauth": false,
+      "primary": false
+    }
+  ],
+  "drivers": [
+    {
+      "id": "1992250d-4e59-4aca-b5f2-ce46b283ac8c",
+      "name": "Luxor Color Group",
+      "namespace": "tagyoureit",
+      "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/devicetypes/tagyoureit/luxor-color-group.src/luxor-color-group.groovy",
+      "required": true
+    },
+    {
+      "id": "0cdf5c9e-aa64-4eb3-bb29-5afc85e8ff16",
+      "name": "Luxor Controller",
+      "namespace": "tagyoureit",
+      "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/devicetypes/tagyoureit/luxor-controller.src/luxor-controller.groovy",
+      "required": true
+    },
+    {
+      "id": "9c4e57d8-5d49-48ed-af3c-43d4f482f7fe",
+      "name": "Luxor Monochrome Group",
+      "namespace": "tagyoureit",
+      "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/devicetypes/tagyoureit/luxor-monochrome-group.src/luxor-monochrome-group.groovy",
+      "required": true
+    },
+    {
+      "id": "2cd45e2a-c391-4529-a32b-373d2a4ff6bf",
+      "name": "Luxor Theme",
+      "namespace": "tagyoureit",
+      "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/devicetypes/tagyoureit/luxor-theme.src/luxor-theme.groovy",
+      "required": true
+    }
+  ]
 }
