@@ -63,10 +63,10 @@ metadata {
 }
 
 def installed() {
-    log.debug 'executing Luxor Controller installed'
+    getHubPlatform()
+    logger('executing Luxor Controller installed', 'trace')
     runIn(10, manageChildren)
     runEvery5Minutes(manageChildren)
-    manageChildren()
 }
 
 // parse events into attributes
@@ -109,7 +109,7 @@ def on() {
 }
 
 def updated() {
-    log.debug 'Executing Luxor Controller updated'
+    logger('Executing Luxor Controller updated', 'debug')
     if (state.isST) unsubscribe()
     manageChildren()
     runEvery5Minutes(manageChildren)
@@ -152,10 +152,10 @@ def sendCommandToController(def apiCommand, def body = [:], def _callback) {
 }
 
 def manageChildren() {
-    logger("manage children in Luxor Controller (current state = $state.manageChildren)", 'debug')
+    logger("manage children in Luxor Controller (current state = $state.manageChildren)", 'trace')
     state.manageChildren = state.manageChildren ?: 'idle'
     // if state.manageChildren is not assigned, initialize it with "idle"
-    logger("state.managechildren = ${state.manageChildren}", 'debug')
+    logger("state.managechildren = ${state.manageChildren}", 'trace')
     if (state.manageChildren == 'idle') {
         state.manageChildren = 'running'
         sendEvent(name: 'refresh', value: 'coolDown')

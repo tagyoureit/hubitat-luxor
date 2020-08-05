@@ -108,7 +108,7 @@ def setupInit() {
 
     def pageProperties = [
         name:        'setupInit',
-        title:        'Luxor ZD/DZC Setup',
+        title:        'Luxor ZD/ZDC/ZDTWO Setup',
         nextPage:   'setupValidate',
         install:    false,
         uninstall:  true
