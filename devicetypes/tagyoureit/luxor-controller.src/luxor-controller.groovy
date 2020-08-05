@@ -63,6 +63,7 @@ metadata {
 }
 
 def installed() {
+    
     log.debug 'executing Luxor Controller installed'
     runIn(10, manageChildren)
     runEvery5Minutes(manageChildren)

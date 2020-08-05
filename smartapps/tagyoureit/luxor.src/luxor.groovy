@@ -130,7 +130,7 @@ def installed() {
 def updated() {
     log.debug "Updated with settings: ${settings}"
 
-    if (state.isST) unsubscribe()
+    if (getIsST()) unsubscribe()
     initialize()
 }
 
@@ -140,7 +140,7 @@ def hubGet(def apiCommand, def body='{}', def _callback) {
         cb['callback'] = _callback
     }
     def result
-    if (state.isST) {
+    if (getIsST()) {
         result = physicalgraph.device.HubAction.newInstance(
         method: 'POST',
         path: apiCommand,
