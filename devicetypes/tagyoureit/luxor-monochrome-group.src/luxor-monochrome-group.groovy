@@ -170,8 +170,8 @@ def parseIlluminateGroup(hubResponse) {
 }
 
 def installed() {
+    getHubPlatform()
     log.info "Executing installed on $device"
-
 }
 
 def setValues() {
@@ -180,7 +180,8 @@ def setValues() {
 }
 
 def updated(){
-  log.debug "updated $device"
+    getHubPlatform()
+    log.debug "updated $device"
     //setValues()
 }
 

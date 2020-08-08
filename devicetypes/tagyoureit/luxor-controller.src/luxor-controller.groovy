@@ -109,8 +109,10 @@ def on() {
 }
 
 def updated() {
+    getHubPlatform()  // should be removed eventually here (and all other updated); 
+    // left it here so users can have the state set without reinstalling the devices
     logger('Executing Luxor Controller updated', 'debug')
-    if (state.isST) unsubscribe()
+    // unsubscribe() // not subscribing to any events so this threw an error
     manageChildren()
     runEvery5Minutes(manageChildren)
 }

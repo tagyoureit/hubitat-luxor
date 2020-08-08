@@ -141,6 +141,7 @@ def setState(_state, _val) {
 }
 
 def updated() {
+    getHubPlatform()
     logger("updated $device", 'debug')
     //setValues()
 }
@@ -243,6 +244,7 @@ def parseIlluminateGroup(response, data) {
 }
 
 def installed() {
+    getHubPlatform()
     logger("Executing installed on $device", 'info')
 }
 

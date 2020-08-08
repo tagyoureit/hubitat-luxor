@@ -128,9 +128,9 @@ def installed() {
 }
 
 def updated() {
+    getHubPlatform()
     log.debug "Updated with settings: ${settings}"
-
-    if (getIsST()) unsubscribe()
+    unsubscribe()
     initialize()
 }
 
@@ -169,7 +169,7 @@ def hubGet(def apiCommand, def body='{}', def _callback) {
     sendHubCommand(result)
 }
 
-def parseControllerName(physicalgraph.device.HubResponse hubResponse) {
+def parseControllerName(hubResponse) {
     state.controllerDiscovered = 'Found'
     state.controllerMac = hubResponse.mac
     state.controllerName = hubResponse.json.Controller

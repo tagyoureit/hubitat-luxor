@@ -106,6 +106,7 @@ def setState(_state, _val) {
 }
 
 def installed() {
+    getHubPlatform()
     log.info "Executing installed on $device"
 }
 
