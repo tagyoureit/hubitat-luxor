@@ -170,7 +170,7 @@ def manageChildren() {
 def resetRunningState() {
     // just in case code crashes, reset state so we can continue.
     if (state.manageChildren != 'idle') {
-        log.debug 'Reset manageChildren State'
+        log.trace 'Reset manageChildren State'
         state.manageChildren = 'idle'
         sendEvent(name: 'refresh', value: 'default')
     }
@@ -182,7 +182,7 @@ def parseGroupListGet(hubResponse) {
     def groups = hubResponse.json.GroupList
     def groupType
     def devices = getChildDevices()?.findAll { it.deviceNetworkId.contains('Group') }
-    logger('Hub retrieved groups: $groups', 'trace')
+    logger("Hub retrieved groups: $groups", 'trace')
     groups.each { group ->
         logger("group $group", 'debug')
         def _group = group.Grp ?: group.GroupNumber

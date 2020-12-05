@@ -1,5 +1,14 @@
 {
   "author": "Russell Goldin",
   "gitHubUrl": "https://github.com/tagyoureit",
-  "payPalUrl": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VN6MLG64WNKQ8&source=url"
+  "payPalUrl": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VN6MLG64WNKQ8&source=url",
+  "packages": [
+    {
+      "id": "3a200646-4801-4cc3-80c4-d8c244c59a1a",
+      "name": "Luxor Lighting Controller",
+      "category": "Convenience",
+      "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/packageManifest.json",
+      "description": "An app and device drivers to control Luxor Lighting Controllers"
+    }
+  ]
 }
