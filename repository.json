@@ -8,7 +8,7 @@
       "name": "Luxor Lighting Controller",
       "category": "Convenience",
       "location": "https://raw.githubusercontent.com/tagyoureit/hubitat-luxor/master/packageManifest.json",
-      "description": "An app and device drivers to control Luxor Lighting Controllers"
+      "description": "An app and device drivers to control Luxor Lighting Controllers (LXZD, LXZDC, LXTWO)"
     }
   ]
 }
