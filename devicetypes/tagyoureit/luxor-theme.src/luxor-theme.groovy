@@ -16,6 +16,7 @@
 metadata {
     definition(name: "Luxor Theme", namespace: "tagyoureit", author: "Russell Goldin") {
         capability 'Momentary'
+        capability 'Actuator'
     }
 
     simulator {

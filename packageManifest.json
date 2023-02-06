@@ -1,9 +1,9 @@
 {
   "packageName": "Luxor Lighting Controller",
   "author": "Russell Goldin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minimumHEVersion": "2.1.9",
-  "dateReleased": "2020-08-05",
+  "dateReleased": "2023-02-06",
   "apps": [
     {
       "id": "32859653-ddce-45e8-8829-baa1af0ffca3",
