@@ -224,7 +224,8 @@ def parseGroupListGet(hubResponse) {
                           'data'          : [
                                   'controllerType': getDataValue('controllerType'),
                                   'controllerIP'  : getDataValue('controllerIP'),
-                                  'controllerPort': getDataValue('controllerPort')
+                                  'controllerPort': getDataValue('controllerPort'),
+                                  'controllerName': getDataValue('controllerName')
                           ],
                           'isComponent'   : false,
                           'componentLabel': "${group.Name}grouplabel" // what is this for?
@@ -275,25 +276,26 @@ def parseThemeListGet(hubResponse) {
     themes.each { theme ->
         logger("theme $theme", 'debug')
         def childMac = "${hubResponse.mac}-Theme${theme.ThemeIndex}".replaceAll("\\s", '')
-
+        def luxorLabel = luxorName == null || luxorName.isEmpty() ? "" : luxorName + " :"} + theme.Name
         def device = devices.find {
             childMac == it.deviceNetworkId
         }
         if (device) {
             devices.remove(device)
         } else {
-            logger("Creating Luxor Theme #:${theme.ThemeIndex}, name ${theme.Name}", 'info')
-            def params = ['label'         : theme.Name,
+            logger("Creating Luxor Theme #:${theme.ThemeIndex}, name ${luxorLabel}", 'info')
+            def params = ['label'         : luxorLabel,
                           'completedSetup': true,
                           'data'          : [
                                   //"theme"         : theme.ThemeIndex,
                                   'controllerType': getDataValue('controllerType'),
                                   'controllerIP'  : getDataValue('controllerIP'),
                                   'controllerPort': getDataValue('controllerPort'),
+                                  'controllerName': getDataValue('controllerName'),
                                   'type'          : 'theme'
                           ],
                           'isComponent'   : false,
-                          'componentLabel': "${theme.Name} theme label" // what is this for?
+                          'componentLabel': "${luxorLabel} theme label" // what is this for?
             ]
             if (state.isST) {
                 device = addChildDevice('tagyoureit', 'Luxor Theme', childMac, hubId, params)
@@ -303,7 +305,7 @@ def parseThemeListGet(hubResponse) {
             }
             logger("THEME 6.  Light Theme $device Added", 'info')
         }
-        if (device.getLabel() != theme.Name) device.setLabel(theme.Name)
+        if (device.getLabel() != luxorLabel) device.setLabel(luxorLabel)
         device.updateDataValue('controllerIP', getDataValue('controllerIP'))
         device.setState('type', 'theme')
         device.setState('luxorTheme', theme.ThemeIndex)

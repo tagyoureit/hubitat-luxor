@@ -105,6 +105,13 @@ def setupInit() {
         defaultValue:    'xxx.xxx.xxx.xxx',
         required:        true
     ]
+    def controllerName = [
+        name:            'luxorName',
+        type:            'string',
+        title:            'Enter a unique name for this controller (or leave blank)',
+        defaultValue:    '',
+        required:        false
+    ]
 
     def pageProperties = [
         name:        'setupInit',
@@ -116,7 +123,8 @@ def setupInit() {
 
         return dynamicPage(pageProperties) {
         section {
-            input inputIP
+            input inputIP,
+            input conttrollerName
         }
         }
 }
@@ -199,13 +207,14 @@ def addControllerAsDevice() {
     } else {
         log.info "Creating Luxor ${state.controllerType} Controller Device with dni: ${mac}"
         d = addChildDevice('tagyoureit', 'Luxor Controller', mac, hubId,
-                           ['label'         : "Luxor ${state.controllerType} Controller",
+                           ['label'         : "${luxorName == null || luxorName.isEmpty() ? "" : luxorName + " :"} Luxor ${state.controllerType} Controller",
                             'completedSetup': true,
                             'data'          : [
                                 'controllerMac'     : mac,
                                 'controllerIP'      : luxorIP,
                                 'controllerPort'    : 80,
-                                'controllerType'    : state.controllerType
+                                'controllerType'    : state.controllerType,
+                                'controllerName'    : luxorName
                             ]
                            ])
     }
