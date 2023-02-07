@@ -207,7 +207,7 @@ def addControllerAsDevice() {
     } else {
         log.info "Creating Luxor ${state.controllerType} Controller Device with dni: ${mac}"
         d = addChildDevice('tagyoureit', 'Luxor Controller', mac, hubId,
-                           ['label'         : "${luxorName == null || luxorName.isEmpty() ? "" : luxorName + " :"} Luxor ${state.controllerType} Controller",
+                           ['label'         : "${luxorName == null || luxorName.isEmpty() ? "" : luxorName + ": "} Luxor ${state.controllerType} Controller",
                             'completedSetup': true,
                             'data'          : [
                                 'controllerMac'     : mac,

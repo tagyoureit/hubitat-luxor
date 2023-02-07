@@ -276,7 +276,7 @@ def parseThemeListGet(hubResponse) {
     themes.each { theme ->
         logger("theme $theme", 'debug')
         def childMac = "${hubResponse.mac}-Theme${theme.ThemeIndex}".replaceAll("\\s", '')
-        def luxorLabel = luxorName == null || luxorName.isEmpty() ? "" : luxorName + " :"} + theme.Name
+        def luxorLabel = luxorName == null || luxorName.isEmpty() ? "" : luxorName + ": " + theme.Name
         def device = devices.find {
             childMac == it.deviceNetworkId
         }
