@@ -123,8 +123,8 @@ def setupInit() {
 
         return dynamicPage(pageProperties) {
         section {
-            input inputIP,
-            input conttrollerName
+            input inputIP
+            input controllerName
         }
         }
 }
