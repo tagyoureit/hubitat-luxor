@@ -71,8 +71,8 @@ def installed() {
 
 // parse events into attributes
 def parse(hubResponse) {
-    logger("Parsing '${hubResponse}'", 'debug')
-    logger("Switch response is ${hubResponse.json}", 'debug')
+    logger("Parsing '${hubResponse}'", 'trace')
+    logger("Switch response is ${hubResponse.json}", 'trace')
 }
 
 def parseAllOn(hubResponse) {
@@ -93,7 +93,7 @@ def parseAllOff(hubResponse) {
         sendEvent(name: 'switch', value: 'off', displayed: true)
         manageChildren()
     } else {
-        logger("Error from Luxor controller: ${hubResponse.json}", 'info')
+        logger("Error from Luxor controller: ${hubResponse.json}", 'error')
     }
 }
 
@@ -157,7 +157,6 @@ def manageChildren() {
     logger("manage children in Luxor Controller (current state = $state.manageChildren)", 'trace')
     state.manageChildren = state.manageChildren ?: 'idle'
     // if state.manageChildren is not assigned, initialize it with "idle"
-    logger("state.managechildren = ${state.manageChildren}", 'trace')
     if (state.manageChildren == 'idle') {
         state.manageChildren = 'running'
         sendEvent(name: 'refresh', value: 'coolDown')
@@ -181,10 +180,12 @@ def parseGroupListGet(hubResponse) {
     def hubId = location.hubs[0].id
     def groups = hubResponse.json.GroupList
     def groupType
+
     def devices = getChildDevices()?.findAll { it.deviceNetworkId.contains('Group') }
     logger("Hub retrieved groups: $groups", 'trace')
     groups.each { group ->
         logger("group $group", 'debug')
+        def luxorLabel = getDataValue('controllerName') == null ? "" : getDataValue('controllerName') + group.Name
         def _group = group.Grp ?: group.GroupNumber
         def childMac = "${hubResponse.mac}-Group${_group}".replaceAll("\\s", '')
 
@@ -219,7 +220,7 @@ def parseGroupListGet(hubResponse) {
                 logger("Creating Luxor $groupType light group #:${_group}, name ${group.Name}, Intensity ${_intensity}", 'info')
             }
             def lightGroup = "Luxor ${groupType} Group"
-            def params = ['label'         : group.Name,
+            def params = ['label'         : luxorLabel,
                           'completedSetup': true,
                           'data'          : [
                                   'controllerType': getDataValue('controllerType'),
@@ -230,7 +231,7 @@ def parseGroupListGet(hubResponse) {
                           'isComponent'   : false,
                           'componentLabel': "${group.Name}grouplabel" // what is this for?
             ]
-            logger("about to add child with values \n  namespace: \n  tagyoureit \n  typeName: $lightGroup \n  childMac: $childMac \n  hubId: $hubId \n  Map properties: $params", 'debug')
+            logger("about to add child with values \n  namespace: \n  tagyoureit \n  typeName: $lightGroup \n  childMac: $childMac \n  hubId: $hubId \n  Map properties: $params", 'trace')
             if (state.isST) {
                 device = addChildDevice('tagyoureit', lightGroup, childMac, hubId, params)
             }
@@ -242,6 +243,7 @@ def parseGroupListGet(hubResponse) {
         }
         // update device values/states whether new or existing device
         device.updateDataValue('controllerIP', getDataValue('controllerIP'))
+        device.updateDataValue('controllerName', getDataValue('controllerName'))
 
         device.sendEvent(name : 'switch', value : _intensity > 0 ? 'on' : 'off' , displayed : true)
 
@@ -249,6 +251,7 @@ def parseGroupListGet(hubResponse) {
         if (getDataValue('controllerType') == 'ZDC' || getDataValue('controllerType') == 'ZDTWO') {
             device.setState('color', _color)
         }
+        if (device.getLabel() != luxorLabel) device.setLabel(luxorLabel)
         device.setState('type', 'group')
         device.setState('luxorGroup', _group)
         device.setState('loggingLevelIDE', loggingLevelIDE)
@@ -276,15 +279,16 @@ def parseThemeListGet(hubResponse) {
     themes.each { theme ->
         logger("theme $theme", 'debug')
         def childMac = "${hubResponse.mac}-Theme${theme.ThemeIndex}".replaceAll("\\s", '')
-        def luxorLabel = luxorName == null || luxorName.isEmpty() ? "" : luxorName + ": " + theme.Name
+        def luxorLabel = getDataValue('controllerName') == null ? "" : getDataValue('controllerName') + theme.Name
         def device = devices.find {
             childMac == it.deviceNetworkId
         }
         if (device) {
             devices.remove(device)
         } else {
-            logger("Creating Luxor Theme #:${theme.ThemeIndex}, name ${luxorLabel}", 'info')
-            def params = ['label'         : luxorLabel,
+            logger("Creating Luxor Theme #:${theme.ThemeIndex}, name ${luxorLabel}, ", 'info')
+            def params = [
+                          'label'         : luxorLabel,
                           'completedSetup': true,
                           'data'          : [
                                   //"theme"         : theme.ThemeIndex,
@@ -306,7 +310,8 @@ def parseThemeListGet(hubResponse) {
             logger("THEME 6.  Light Theme $device Added", 'info')
         }
         if (device.getLabel() != luxorLabel) device.setLabel(luxorLabel)
-        device.updateDataValue('controllerIP', getDataValue('controllerIP'))
+        // device.setName("setName $theme.name") // should prob be device type
+
         device.setState('type', 'theme')
         device.setState('luxorTheme', theme.ThemeIndex)
         device.setState('loggingLevelIDE', loggingLevelIDE)
@@ -348,7 +353,7 @@ def parseUpdateGroup(hubResponse) {
     if (hubResponse.json.Status == 0) {
         refresh()
     } else {
-        logger("Error from Luxor controller: ${hubResponse.json}", 'info')
+        logger("Error from Luxor controller: ${hubResponse.json}", 'error')
     }
 }
 def setControllerState(groups) {

@@ -36,7 +36,7 @@ preferences {
 
 def validateController() {
     if (state.controllerDiscovered == 'Not Started') {
-        log.info "Looking for Luxor Controller at $luxorIP with state $state.controllerDiscovered"
+        log.info "Looking for Luxor Controller at $luxorIP with state $state.controllerDiscovered.  Optional name: $luxorName."
 
         state.controllerDiscovered = 'Pending'
         hubGet('/ControllerName.json', null, 'parseControllerName')
@@ -47,7 +47,7 @@ def validateController() {
 }
 
 def setupValidate() {
-    log.debug "In SetupValidate with $state.controllerDiscovered"
+    log.trace "In SetupValidate with $state.controllerDiscovered"
     def msg
     def canInstall = false
     def interval = 2
@@ -97,7 +97,7 @@ def setupValidate() {
 
 def setupInit() {
     state.controllerDiscovered = 'Not Started'
-    log.debug "in setupInit with states $state.controllerDiscovered"
+    log.trace "in setupInit with states $state.controllerDiscovered"
     def inputIP = [
         name:            'luxorIP',
         type:            'string',
@@ -108,7 +108,7 @@ def setupInit() {
     def controllerName = [
         name:            'luxorName',
         type:            'string',
-        title:            'Enter a unique name for this controller (or leave blank)',
+        title:            'Enter a unique name for this controller (or leave blank).  Include any separators (eg "XYZ: ").',
         defaultValue:    '',
         required:        false
     ]
@@ -201,13 +201,16 @@ def addControllerAsDevice() {
     def mac = state.controllerMac
     def hubId = location.hubs[0].id
     def d = getChildDevices()?.find { it.deviceNetworkId == mac }
+    controllerLabel = "${luxorName == null ? '' : luxorName}Luxor ${state.controllerType} Controller"
     if (d) {
         d.updateDataValue('controllerIP', luxorIP)
-    //d.manageChildren()  // installed in child device calls same method
+        d.updateDataValue('controllerName', luxorName)
+        d.setLabel(controllerLabel)
+        d.manageChildren()  // installed in child device calls same method
     } else {
         log.info "Creating Luxor ${state.controllerType} Controller Device with dni: ${mac}"
         d = addChildDevice('tagyoureit', 'Luxor Controller', mac, hubId,
-                           ['label'         : "${luxorName == null || luxorName.isEmpty() ? "" : luxorName + ": "} Luxor ${state.controllerType} Controller",
+                           ['label'         : controllerLabel,
                             'completedSetup': true,
                             'data'          : [
                                 'controllerMac'     : mac,
@@ -218,7 +221,7 @@ def addControllerAsDevice() {
                             ]
                            ])
     }
-    log.debug "Controller Device is $d"
+    log.trace "Controller Device is $d"
 }
 
 def initialize() {
