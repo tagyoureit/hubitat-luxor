@@ -39,6 +39,7 @@ Find this package with Hubitat Package Manager.
 
 1. You only need to know your Luxor controller's IP address.  You can find this on the controller itself under the Wifi/Wired settings page.
 1. Enter the IP Address on the setup page and click Next.
+1. Optionally, add a prefix for the naming convention.  Useful if you have multiple controllers.  Include any separators and spaces that you want.  EG "Front: " will create a device "Front: Luxor ZDC Controller".  
 1. The screen will refresh every 2 seconds, up to 2 minutes, looking for the controller.
 1. When the controller is found, select "Save" and wait up to 1 minute for all of the devices to be configured.
 
