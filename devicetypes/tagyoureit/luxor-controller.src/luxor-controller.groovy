@@ -185,7 +185,7 @@ def parseGroupListGet(hubResponse) {
     logger("Hub retrieved groups: $groups", 'trace')
     groups.each { group ->
         logger("group $group", 'debug')
-        def luxorLabel = getDataValue('controllerName') == null ? "" : getDataValue('controllerName') + group.Name
+        def luxorLabel = (getDataValue('controllerName') == null ? "" : getDataValue('controllerName')) + group.Name
         def _group = group.Grp ?: group.GroupNumber
         def childMac = "${hubResponse.mac}-Group${_group}".replaceAll("\\s", '')
 
@@ -279,7 +279,7 @@ def parseThemeListGet(hubResponse) {
     themes.each { theme ->
         logger("theme $theme", 'debug')
         def childMac = "${hubResponse.mac}-Theme${theme.ThemeIndex}".replaceAll("\\s", '')
-        def luxorLabel = getDataValue('controllerName') == null ? "" : getDataValue('controllerName') + theme.Name
+        def luxorLabel = (getDataValue('controllerName') == null ? "" : getDataValue('controllerName')) + theme.Name
         def device = devices.find {
             childMac == it.deviceNetworkId
         }
@@ -309,6 +309,9 @@ def parseThemeListGet(hubResponse) {
             }
             logger("THEME 6.  Light Theme $device Added", 'info')
         }
+        // update device values/states whether new or existing device
+        device.updateDataValue('controllerIP', getDataValue('controllerIP'))
+        device.updateDataValue('controllerName', getDataValue('controllerName'))
         if (device.getLabel() != luxorLabel) device.setLabel(luxorLabel)
         // device.setName("setName $theme.name") // should prob be device type
 
